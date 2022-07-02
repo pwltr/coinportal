@@ -3,7 +3,7 @@
 </h1>
 
 <h3>
-Cross-platform desktop GUI for [Bitcoin teleport-transactions](https://github.com/bitcoin-teleport/teleport-transactions)
+Cross-platform desktop GUI for <a href="https://github.com/bitcoin-teleport/teleport-transactions">Bitcoin teleport-transactions</a>
 </h3>
 
 
