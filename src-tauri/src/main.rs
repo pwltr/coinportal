@@ -1,18 +1,32 @@
 #![cfg_attr(
-  all(not(debug_assertions), target_os = "windows"),
-  windows_subsystem = "windows"
+    all(not(debug_assertions), target_os = "windows"),
+    windows_subsystem = "windows"
 )]
 
-#[tauri::command]
-fn greet(name: &str) -> String {
-  format!("Hello, {}!", name)
-}
+mod commands;
+
+#[cfg(target_os = "macos")]
+mod menu;
 
 fn main() {
-  let context = tauri::generate_context!();
-  tauri::Builder::default()
-    .menu(tauri::Menu::os_default(&context.package_info().name))
-    .invoke_handler(tauri::generate_handler![greet])
-    .run(context)
-    .expect("error while running tauri application");
+    let context = tauri::generate_context!();
+    let builder = tauri::Builder::default().invoke_handler(tauri::generate_handler![
+        commands::generate_wallet,
+        commands::recover_wallet,
+        commands::get_wallet_balance,
+        // commands::get_wallet_addresses,
+        commands::get_receive_invoice,
+        commands::get_fidelity_bond_address,
+        commands::run_taker,
+        commands::run_maker,
+        commands::run_watchtower,
+    ]);
+
+    // Needed on macOS to enable basic operations, like copy & paste and select-all via keyboard shortcuts.
+    #[cfg(target_os = "macos")]
+    let builder = builder.menu(menu::menu());
+
+    builder
+        .run(context)
+        .expect("error while running application");
 }

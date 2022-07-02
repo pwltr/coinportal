@@ -1,22 +1,32 @@
 {
-  "$schema": "../node_modules/@tauri-apps/cli/schema.json",
+  "package": {
+    "productName": "coinportal",
+    "version": "0.0.1"
+  },
   "build": {
     "beforeBuildCommand": "yarn build",
     "beforeDevCommand": "yarn dev",
     "devPath": "http://localhost:3000",
     "distDir": "../dist"
   },
-  "package": {
-    "productName": "coinportal",
-    "version": "0.1.0"
-  },
+  "$schema": "../node_modules/@tauri-apps/cli/schema.json",
   "tauri": {
     "allowlist": {
-      "all": true
+      "all": false,
+      "fs": {
+        "all": true,
+        "writeFile": true,
+        "copyFile": true,
+        "createDir": true,
+        "removeDir": true,
+        "removeFile": true,
+        "renameFile": true,
+        "scope": ["**"]
+      }
     },
     "bundle": {
       "active": true,
-      "category": "DeveloperTool",
+      "category": "Finance",
       "copyright": "",
       "deb": {
         "depends": []
@@ -29,7 +39,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.tauri.dev",
+      "identifier": "com.coinportal.dev",
       "longDescription": "",
       "macOS": {
         "entitlements": null,
@@ -48,18 +58,18 @@
       }
     },
     "security": {
-      "csp": null
+      "csp": "default-src 'self' style-src: 'unsafe-inline'"
     },
     "updater": {
       "active": false
     },
     "windows": [
       {
-        "fullscreen": false,
-        "height": 600,
-        "resizable": true,
         "title": "CoinPortal",
-        "width": 800
+        "width": 1100,
+        "height": 700,
+        "fullscreen": false,
+        "resizable": true
       }
     ]
   }
