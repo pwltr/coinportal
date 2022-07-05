@@ -16,11 +16,15 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "paths": {
+      "@mui/styled-engine": ["./node_modules/@mui/styled-engine-sc"],
+
       "~/*": ["./src/*"],
       "~/components/*": ["./src/components/*"],
+      "~/context/*": ["./src/context/*"],
       "~/hooks/*": ["./src/hooks/*"],
       "~/locales/*": ["./src/locales/*"],
       "~/styles/*": ["./src/styles/*"],
+      "~/types/*": ["./src/types/*"],
       "~/utils/*": ["./src/utils/*"]
     }
   },

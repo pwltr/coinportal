@@ -1,0 +1,9 @@
+{
+  "start": {
+    "generateWallet": "Generate Wallet"
+  },
+  "toasts": {
+    "copied": "Copied to clipboard",
+    "error": "An error occured."
+  }
+}

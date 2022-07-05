@@ -1,5 +1,9 @@
+import { useContext } from 'react'
 import { removeFile } from '@tauri-apps/api/fs'
+import toast from 'react-hot-toast'
 import styled from 'styled-components'
+
+import { ThemeContext } from '~/context'
 
 const Container = styled('div')`
   position: fixed;
@@ -15,46 +19,26 @@ const Row = styled('div')`
 const Button = styled('button')``
 
 const AppDebugger = () => {
-  // const handleGetStatus = async () => {
-  //   try {
-  //     const status = await vault.getStatus()
-  //     console.log('status', status)
-  //   } catch (err) {
-  //     console.error(err)
-  //   }
-  // }
-
-  // const handleGetVault = async () => {
-  //   try {
-  //     const currentVault = await vault.getVault()
-  //     console.log('currentVault', currentVault)
-  //   } catch (err) {
-  //     console.error(err)
-  //   }
-  // }
-
-  const handleReset = async () => {
-    await removeFile('./wallet.teleport')
-    localStorage.clear()
-  }
+  const { setTheme } = useContext(ThemeContext)
 
   const handleDebug = async () => {
+    setTheme('light')
+  }
+
+  const handleReset = async () => {
     try {
-      // await checkUpdate()
-    } catch (err) {
-      console.error(err)
+      await removeFile('./wallet.teleport')
+      localStorage.clear()
+      location.reload()
+      toast.success('Wallet reset.')
+    } catch (error) {
+      toast.error(error as string)
     }
   }
 
   return (
     <Container>
       <Row>
-        {/* <Button size="small" variant="contained" onClick={handleGetStatus}>
-          Status
-        </Button>
-        <Button size="small" variant="contained" onClick={handleGetVault}>
-          Value
-        </Button> */}
         <Button
           className="btn btn-sm btn-outline btn-info"
           color="warning"

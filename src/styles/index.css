@@ -11,7 +11,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-code {
+pre {
+  background: #2a303c;
+  border-radius: 8px;
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
+  padding: 1rem;
 }
