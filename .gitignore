@@ -24,6 +24,8 @@ dist-ssr
 *.sw?
 
 # Wallet files
-*.teleport
+/src-tauri/*.teleport
+/src-tauri/*.teleport.json
 
 Notes.md
+Todo.md
