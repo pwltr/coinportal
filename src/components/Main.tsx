@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import toast from 'react-hot-toast'
 import { readTextFile } from '@tauri-apps/api/fs'
 import { clipboard } from '@tauri-apps/api'
+import styled from 'styled-components'
 
 import { getWalletBalance, getReceiveInvoice, getFidelityBondAddress, runTaker } from '~/utils'
 import logo from '../logo.svg'
@@ -13,6 +14,13 @@ type Response<Body> = {
   data?: Body | null
   message?: string
 }
+
+const Buttons = styled('div')`
+  display: flex;
+  justify-content: center;
+  grid-gap: 0.5rem;
+  margin: 2rem 0 1rem;
+`
 
 function Main() {
   const navigate = useNavigate()
@@ -24,7 +32,7 @@ function Main() {
   useEffect(() => {
     const checkForWallet = async () => {
       try {
-        await readTextFile('./wallet.teleport')
+        await readTextFile('./wallet.teleport.json')
       } catch (error) {
         navigate('start')
       }
@@ -41,7 +49,7 @@ function Main() {
         {isLoading ? <h1>Loading...</h1> : <h1>CoinPortal</h1>}
 
         <div className="container mx-auto flex flex-col">
-          <div className="flex my-4 justify-center">
+          <Buttons>
             <button
               className="btn"
               type="button"
@@ -141,7 +149,7 @@ function Main() {
             >
               Do Coinswap
             </button>
-          </div>
+          </Buttons>
 
           {response && !isLoading && (
             <pre

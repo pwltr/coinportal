@@ -27,7 +27,7 @@ const AppDebugger = () => {
 
   const handleReset = async () => {
     try {
-      await removeFile('./wallet.teleport')
+      await removeFile('./wallet.teleport.json')
       localStorage.clear()
       location.reload()
       toast.success('Wallet reset.')

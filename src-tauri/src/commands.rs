@@ -1,6 +1,7 @@
 use serde::Serialize;
 use std::path::PathBuf;
 use std::str::FromStr;
+use std::thread;
 use teleport::fidelity_bonds::YearAndMonth;
 use teleport::json;
 use teleport::wallet_sync::{DisplayAddressType, WalletSyncAddressAmount};
@@ -29,7 +30,7 @@ pub async fn generate_wallet(
     extension: Option<String>,
 ) -> Response<json::GenerateWalletResult> {
     let file_name = format!(
-        "{}.teleport",
+        "{}.teleport.json",
         name.unwrap_or(DEFAULT_WALLET_NAME.to_string())
     );
     let path = PathBuf::from_str(&file_name).unwrap();
@@ -56,7 +57,7 @@ pub async fn recover_wallet(
     extension: Option<String>,
 ) -> Response<json::RecoverWalletResult> {
     let file_name = format!(
-        "{}.teleport",
+        "{}.teleport.json",
         name.unwrap_or(DEFAULT_WALLET_NAME.to_string())
     );
     let path = PathBuf::from_str(&file_name).unwrap();
@@ -78,7 +79,7 @@ pub async fn recover_wallet(
 #[tauri::command]
 pub async fn get_wallet_balance(name: Option<String>) -> Response<json::GetWalletBalanceResult> {
     let file_name = format!(
-        "{}.teleport",
+        "{}.teleport.json",
         name.unwrap_or(DEFAULT_WALLET_NAME.to_string())
     );
     let path = PathBuf::from_str(&file_name).unwrap();
@@ -104,7 +105,7 @@ pub async fn get_wallet_addresses(
     network: Option<String>,
 ) -> Response<json::GetWalletAdressesResult> {
     let file_name = format!(
-        "{}.teleport",
+        "{}.teleport.json",
         name.unwrap_or(DEFAULT_WALLET_NAME.to_string())
     );
     let path = PathBuf::from_str(&file_name).unwrap();
@@ -128,7 +129,7 @@ pub async fn get_wallet_addresses(
 #[tauri::command]
 pub async fn get_receive_invoice(name: Option<String>) -> Response<json::GetReceiveInvoiceResult> {
     let file_name = format!(
-        "{}.teleport",
+        "{}.teleport.json",
         name.unwrap_or(DEFAULT_WALLET_NAME.to_string())
     );
     let path = PathBuf::from_str(&file_name).unwrap();
@@ -153,7 +154,7 @@ pub async fn get_fidelity_bond_address(
     locktime: String,
 ) -> Response<json::GetFidelityBondAddressResult> {
     let file_name = format!(
-        "{}.teleport",
+        "{}.teleport.json",
         name.unwrap_or(DEFAULT_WALLET_NAME.to_string())
     );
     let path = PathBuf::from_str(&file_name).unwrap();
@@ -176,9 +177,44 @@ pub async fn get_fidelity_bond_address(
 }
 
 #[tauri::command]
-pub async fn direct_send(arg1: String) {
-    // teleport::direct_send()
-    unimplemented!()
+pub async fn run_taker(
+    name: Option<String>,
+    send_amount: u64,
+    fee_rate: Option<u64>,
+    maker_count: Option<u16>,
+    tx_count: Option<u32>,
+) -> Response<()> {
+    thread::spawn(move || {
+        let file_name = format!(
+            "{}.teleport.json",
+            name.unwrap_or(DEFAULT_WALLET_NAME.to_string())
+        );
+        let path = PathBuf::from_str(&file_name).unwrap();
+
+        match teleport::run_taker(
+            &path,
+            WalletSyncAddressAmount::Testing,
+            fee_rate.unwrap_or(1000),
+            send_amount,
+            maker_count.unwrap_or(2),
+            tx_count.unwrap_or(3),
+        ) {
+            Ok(result) => Response {
+                status: ResponseType::Success,
+                // TODO:
+                // data: Some(result),
+                data: None,
+                message: None,
+            },
+            Err(error) => Response {
+                status: ResponseType::Error,
+                data: None,
+                message: Some(error.to_string()),
+            },
+        }
+    })
+    .join()
+    .expect("Thread panicked")
 }
 
 #[tauri::command]
@@ -188,50 +224,7 @@ pub async fn recover_from_incomplete_coinswap(arg1: String) {
 }
 
 #[tauri::command]
-pub fn run_taker(
-    name: Option<String>,
-    send_amount: u64,
-    // fee_rate: u64,
-    maker_count: Option<u16>,
-    tx_count: Option<u32>,
-) -> Response<()> {
-    let file_name = format!(
-        "{}.teleport",
-        name.unwrap_or(DEFAULT_WALLET_NAME.to_string())
-    );
-    let path = PathBuf::from_str(&file_name).unwrap();
-
-    match teleport::run_taker(
-        &path,
-        WalletSyncAddressAmount::Testing,
-        100000000,
-        send_amount,
-        maker_count.unwrap_or(2),
-        tx_count.unwrap_or(3),
-    ) {
-        Ok(result) => Response {
-            status: ResponseType::Success,
-            // TODO:
-            // data: Some(result),
-            data: None,
-            message: None,
-        },
-        Err(error) => Response {
-            status: ResponseType::Error,
-            data: None,
-            message: Some(error.to_string()),
-        },
-    }
-}
-
-#[tauri::command]
-pub async fn run_maker(arg1: String) {
-    // teleport::run_maker()
-    unimplemented!()
-}
-
-#[tauri::command]
-pub async fn run_watchtower(arg1: String) {
-    // teleport::run_watchtower()
+pub async fn direct_send(arg1: String) {
+    // teleport::direct_send()
     unimplemented!()
 }

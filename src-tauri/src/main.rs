@@ -18,8 +18,6 @@ fn main() {
         commands::get_receive_invoice,
         commands::get_fidelity_bond_address,
         commands::run_taker,
-        commands::run_maker,
-        commands::run_watchtower,
     ]);
 
     // Needed on macOS to enable basic operations, like copy & paste and select-all via keyboard shortcuts.
