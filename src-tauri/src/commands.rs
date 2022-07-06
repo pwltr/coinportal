@@ -101,7 +101,6 @@ pub async fn get_wallet_balance(name: Option<String>) -> Response<json::GetWalle
 #[tauri::command]
 pub async fn get_wallet_addresses(
     name: Option<String>,
-    types: DisplayAddressType,
     network: Option<String>,
 ) -> Response<json::GetWalletAdressesResult> {
     let file_name = format!(
@@ -110,10 +109,10 @@ pub async fn get_wallet_addresses(
     );
     let path = PathBuf::from_str(&file_name).unwrap();
 
-    match teleport::get_wallet_addresses(&path, types, network) {
-        Ok(result) => Response {
+    match teleport::get_wallet_addresses(&path, DisplayAddressType::All, network) {
+        Ok(()) => Response {
             status: ResponseType::Success,
-            // TODO:
+            // TODO: do we have something to return here?
             // data: Some(result),
             data: None,
             message: None,
@@ -199,10 +198,9 @@ pub async fn run_taker(
             maker_count.unwrap_or(2),
             tx_count.unwrap_or(3),
         ) {
-            Ok(result) => Response {
+            Ok(()) => Response {
                 status: ResponseType::Success,
-                // TODO:
-                // data: Some(result),
+                // TODO: return something here?
                 data: None,
                 message: None,
             },

@@ -6,28 +6,21 @@ import { useTranslation } from 'react-i18next'
 import { generateWallet, recoverWallet } from '~/utils'
 import logo from '../logo.svg'
 
-type Response<Body> = {
-  status: 'success' | 'error'
-  data?: Body | null
-  message?: string
-}
-
 function Start() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const [seedPhrase, setSeedPhrase] = useState('')
   const [extension, setExtension] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  // TEMP: just debugging
-  const [response, setResponse] = useState<Response<unknown> | null>(null)
 
   return (
     <>
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
-
         {isLoading ? <h1>Generating wallet...</h1> : <h1>CoinPortal</h1>}
+      </header>
 
+      <div className="App-body">
         <div className="container mx-auto flex flex-col">
           <div className="flex my-4 justify-center">
             <div className="">
@@ -39,14 +32,12 @@ function Start() {
                   generateWallet({ extension })
                     .then((response) => {
                       console.log('response', response)
-                      setResponse(response)
                       setIsLoading(false)
                       navigate('/')
                     })
                     .catch((error) => {
                       console.error('error', error)
                       toast.error(error.message)
-                      setResponse(error)
                       setIsLoading(false)
                     })
                 }}
@@ -90,14 +81,12 @@ function Start() {
                   })
                     .then((response) => {
                       console.log('response', response)
-                      setResponse(response)
                       setIsLoading(false)
                       navigate('/')
                     })
                     .catch((error) => {
                       console.error('error', error)
                       toast.error(error.message)
-                      setResponse(error)
                       setIsLoading(false)
                     })
                 }}
@@ -106,20 +95,8 @@ function Start() {
               </button>
             </div>
           </div>
-
-          {response && !isLoading && (
-            <pre
-              style={{
-                color: response.status === 'success' ? 'inherit' : 'red',
-                fontSize: '13px',
-                textAlign: 'left',
-              }}
-            >
-              {JSON.stringify(response, null, 2)}
-            </pre>
-          )}
         </div>
-      </header>
+      </div>
     </>
   )
 }

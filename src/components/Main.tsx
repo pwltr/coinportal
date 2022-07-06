@@ -45,9 +45,10 @@ function Main() {
     <>
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
+        <h1>CoinPortal</h1>
+      </header>
 
-        {isLoading ? <h1>Loading...</h1> : <h1>CoinPortal</h1>}
-
+      <div className="App-body">
         <div className="container mx-auto flex flex-col">
           <Buttons>
             <button
@@ -151,6 +152,8 @@ function Main() {
             </button>
           </Buttons>
 
+          {isLoading && <div>In Progress...</div>}
+
           {response && !isLoading && (
             <pre
               style={{
@@ -163,7 +166,7 @@ function Main() {
             </pre>
           )}
         </div>
-      </header>
+      </div>
 
       <Outlet />
     </>
