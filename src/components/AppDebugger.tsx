@@ -1,9 +1,9 @@
 import { useContext } from 'react'
-import { removeFile } from '@tauri-apps/api/fs'
 import toast from 'react-hot-toast'
 import styled from 'styled-components'
 
 import { ThemeContext } from '~/context'
+import { removeWalletFile } from '~/utils'
 
 const Container = styled('div')`
   position: fixed;
@@ -27,7 +27,7 @@ const AppDebugger = () => {
 
   const handleReset = async () => {
     try {
-      await removeFile('./wallet.teleport.json')
+      await removeWalletFile()
       localStorage.clear()
       location.reload()
       toast.success('Wallet reset.')

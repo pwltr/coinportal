@@ -1,11 +1,14 @@
 use serde::Serialize;
+use std::fs;
 use std::path::PathBuf;
 use std::str::FromStr;
 use std::thread;
+use tauri::api::path::data_dir;
 use teleport::fidelity_bonds::YearAndMonth;
 use teleport::json;
 use teleport::wallet_sync::{DisplayAddressType, WalletSyncAddressAmount};
 
+const APP_NAME: &str = "coinportal";
 const DEFAULT_WALLET_NAME: &str = "wallet";
 
 #[derive(Serialize, Debug)]
@@ -24,19 +27,28 @@ pub struct Response<Body> {
     message: Option<String>,
 }
 
+fn create_wallet_path(name: Option<String>) -> PathBuf {
+    let default_file_name = DEFAULT_WALLET_NAME.to_string();
+    let file_name = format!("{}.teleport.json", name.unwrap_or(default_file_name));
+    let data_dir = data_dir().unwrap();
+    let app_data_path = format!("{}/{}", data_dir.to_string_lossy(), APP_NAME);
+    let wallet_path = PathBuf::from_str(&format!("{}/{}", app_data_path, file_name)).unwrap();
+
+    // Create App Data directory if it doesn't exist
+    fs::create_dir_all(app_data_path).unwrap();
+
+    wallet_path
+}
+
 #[tauri::command]
 pub async fn generate_wallet(
     name: Option<String>,
     extension: Option<String>,
 ) -> Response<json::GenerateWalletResult> {
-    let file_name = format!(
-        "{}.teleport.json",
-        name.unwrap_or(DEFAULT_WALLET_NAME.to_string())
-    );
-    let path = PathBuf::from_str(&file_name).unwrap();
+    let wallet_path = create_wallet_path(name);
     let extension = extension.unwrap_or(String::from(""));
 
-    match teleport::generate_wallet(&path, Some(extension)) {
+    match teleport::generate_wallet(&wallet_path, Some(extension)) {
         Ok(wallet_info) => Response {
             status: ResponseType::Success,
             data: Some(wallet_info),
@@ -56,13 +68,9 @@ pub async fn recover_wallet(
     seed_phrase: String,
     extension: Option<String>,
 ) -> Response<json::RecoverWalletResult> {
-    let file_name = format!(
-        "{}.teleport.json",
-        name.unwrap_or(DEFAULT_WALLET_NAME.to_string())
-    );
-    let path = PathBuf::from_str(&file_name).unwrap();
+    let wallet_path = create_wallet_path(name);
 
-    match teleport::recover_wallet(&path, &seed_phrase, extension) {
+    match teleport::recover_wallet(&wallet_path, &seed_phrase, extension) {
         Ok(result) => Response {
             status: ResponseType::Success,
             data: Some(result),
@@ -78,13 +86,9 @@ pub async fn recover_wallet(
 
 #[tauri::command]
 pub async fn get_wallet_balance(name: Option<String>) -> Response<json::GetWalletBalanceResult> {
-    let file_name = format!(
-        "{}.teleport.json",
-        name.unwrap_or(DEFAULT_WALLET_NAME.to_string())
-    );
-    let path = PathBuf::from_str(&file_name).unwrap();
+    let wallet_path = create_wallet_path(name);
 
-    match teleport::get_wallet_balance(&path) {
+    match teleport::get_wallet_balance(&wallet_path) {
         Ok(result) => Response {
             status: ResponseType::Success,
             data: Some(result),
@@ -103,13 +107,9 @@ pub async fn get_wallet_addresses(
     name: Option<String>,
     network: Option<String>,
 ) -> Response<json::GetWalletAdressesResult> {
-    let file_name = format!(
-        "{}.teleport.json",
-        name.unwrap_or(DEFAULT_WALLET_NAME.to_string())
-    );
-    let path = PathBuf::from_str(&file_name).unwrap();
+    let wallet_path = create_wallet_path(name);
 
-    match teleport::get_wallet_addresses(&path, DisplayAddressType::All, network) {
+    match teleport::get_wallet_addresses(&wallet_path, DisplayAddressType::All, network) {
         Ok(()) => Response {
             status: ResponseType::Success,
             // TODO: do we have something to return here?
@@ -127,13 +127,9 @@ pub async fn get_wallet_addresses(
 
 #[tauri::command]
 pub async fn get_receive_invoice(name: Option<String>) -> Response<json::GetReceiveInvoiceResult> {
-    let file_name = format!(
-        "{}.teleport.json",
-        name.unwrap_or(DEFAULT_WALLET_NAME.to_string())
-    );
-    let path = PathBuf::from_str(&file_name).unwrap();
+    let wallet_path = create_wallet_path(name);
 
-    match teleport::get_receive_invoice(&path) {
+    match teleport::get_receive_invoice(&wallet_path) {
         Ok(result) => Response {
             status: ResponseType::Success,
             data: Some(result),
@@ -152,16 +148,11 @@ pub async fn get_fidelity_bond_address(
     name: Option<String>,
     locktime: String,
 ) -> Response<json::GetFidelityBondAddressResult> {
-    let file_name = format!(
-        "{}.teleport.json",
-        name.unwrap_or(DEFAULT_WALLET_NAME.to_string())
-    );
-    let path = PathBuf::from_str(&file_name).unwrap();
-
+    let wallet_path = create_wallet_path(name);
     // TODO:
     let locktime = YearAndMonth::new(2030, 1);
 
-    match teleport::get_fidelity_bond_address(&path, &locktime) {
+    match teleport::get_fidelity_bond_address(&wallet_path, &locktime) {
         Ok(result) => Response {
             status: ResponseType::Success,
             data: Some(result),
@@ -184,14 +175,10 @@ pub async fn run_taker(
     tx_count: Option<u32>,
 ) -> Response<()> {
     thread::spawn(move || {
-        let file_name = format!(
-            "{}.teleport.json",
-            name.unwrap_or(DEFAULT_WALLET_NAME.to_string())
-        );
-        let path = PathBuf::from_str(&file_name).unwrap();
+        let wallet_path = create_wallet_path(name);
 
         match teleport::run_taker(
-            &path,
+            &wallet_path,
             WalletSyncAddressAmount::Testing,
             fee_rate.unwrap_or(1000),
             send_amount,
@@ -216,13 +203,17 @@ pub async fn run_taker(
 }
 
 #[tauri::command]
-pub async fn recover_from_incomplete_coinswap(arg1: String) {
+pub async fn recover_from_incomplete_coinswap(name: Option<String>) {
+    let wallet_path = create_wallet_path(name);
+
     // teleport::recover_from_incomplete_coinswap()
     unimplemented!()
 }
 
 #[tauri::command]
-pub async fn direct_send(arg1: String) {
+pub async fn direct_send(name: Option<String>) {
+    let wallet_path = create_wallet_path(name);
+
     // teleport::direct_send()
     unimplemented!()
 }

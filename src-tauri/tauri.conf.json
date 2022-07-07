@@ -16,6 +16,9 @@
       "clipboard": {
         "writeText": true
       },
+      "path": {
+        "all": true
+      },
       "fs": {
         "all": true,
         "writeFile": true,
@@ -24,7 +27,7 @@
         "removeDir": true,
         "removeFile": true,
         "renameFile": true,
-        "scope": ["**"]
+        "scope": ["$DATA/**"]
       }
     },
     "bundle": {
@@ -42,7 +45,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.coinportal.dev",
+      "identifier": "coinportal",
       "longDescription": "",
       "macOS": {
         "entitlements": null,

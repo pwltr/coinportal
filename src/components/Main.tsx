@@ -2,11 +2,16 @@ import { useState, useEffect } from 'react'
 import { useNavigate, Outlet } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import toast from 'react-hot-toast'
-import { readTextFile } from '@tauri-apps/api/fs'
 import { clipboard } from '@tauri-apps/api'
 import styled from 'styled-components'
 
-import { getWalletBalance, getReceiveInvoice, getFidelityBondAddress, runTaker } from '~/utils'
+import {
+  readWalletFile,
+  getWalletBalance,
+  getReceiveInvoice,
+  getFidelityBondAddress,
+  runTaker,
+} from '~/utils'
 import logo from '../logo.svg'
 
 type Response<Body> = {
@@ -32,7 +37,7 @@ function Main() {
   useEffect(() => {
     const checkForWallet = async () => {
       try {
-        await readTextFile('./wallet.teleport.json')
+        await readWalletFile()
       } catch (error) {
         navigate('start')
       }
