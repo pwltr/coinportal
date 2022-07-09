@@ -28,7 +28,7 @@ function Start() {
               type="button"
               onClick={() => {
                 setIsLoading(true)
-                generateWallet({ extension })
+                generateWallet()
                   .then((response) => {
                     console.log('response', response)
                     toast.success('Wallet generated.')

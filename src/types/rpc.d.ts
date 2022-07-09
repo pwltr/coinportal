@@ -4,15 +4,27 @@ type Response<Body> = {
   message?: string
 }
 
+type GenerateWalletRequest = { name?: string; extension?: string }
+
 type GenerateWalletResult = {
   wallet_name: string
   seed_phrase: string
   extension: string | null
 }
 
+type RecoverWalletRequest = {
+  name?: string
+  seedPhrase: string
+  extension: string
+}
+
 type RecoverWalletResult = {
   wallet_name: string
   extension: string | null
+}
+
+type GetWalletBalanceRequest = {
+  name?: string
 }
 
 type GetWalletBalanceResult = {
@@ -40,12 +52,28 @@ type SpendableBalance = {
 //     outgoing_contract_utxos: Array<(OutgoingSwapCoin, ListUnspentResultEntry)>,
 // }
 
+type GetWalletAdressesRequest = {
+  // TODO:
+}
+
 type GetWalletAdressesResult = {
   // TODO:
 }
 
-type GetReceiveInvoiceResult = {
+type getReceiveAddressRequest = {
+  name?: string
+}
+
+type getReceiveAddressResult = {
   address: string
+}
+
+type GetFidelityBondAddressRequest = {
+  name?: string
+  locktime: {
+    month: number
+    year: number
+  }
 }
 
 type GetFidelityBondAddressResult = {
@@ -53,15 +81,43 @@ type GetFidelityBondAddressResult = {
   unix_locktime: number
 }
 
-type RecoverFromIncompleteCoinswapResult = {
-  // TODO:
+type GetOffersRequest = {
+  network?: string
+  makerAddress?: number
 }
 
-type DownloadOffersResult = {
+type GetOffersResult = {
   maker_addresses: Array<MakerAddress>
   addresses_offers_map: {
     address: string
   }
+}
+
+type RunTakerRequest = {
+  name?: string
+  sendAmount: number
+  feeRate?: number
+  makerCount?: number
+  txCount?: number
+}
+
+type RunTakerResult = null
+
+type RecoverFromIncompleteCoinswapRequest = {
+  // TODO:
+}
+
+type RecoverFromIncompleteCoinswapResult = {
+  // TODO:
+}
+
+type DirectSendRequest = {
+  name?: string
+  sendAmount: number
+  destination: string
+  coinsToSpend: string
+  feeRate?: string
+  dontBroadcast?: boolean
 }
 
 type DirectSendResult = {

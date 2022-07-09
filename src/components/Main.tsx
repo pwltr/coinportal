@@ -8,7 +8,7 @@ import styled from 'styled-components'
 import {
   readWalletFile,
   getWalletBalance,
-  getReceiveInvoice,
+  getReceiveAddress,
   getFidelityBondAddress,
   runTaker,
   getOffers,
@@ -97,7 +97,7 @@ function Main() {
             type="button"
             onClick={async () => {
               setIsLoading(true)
-              getReceiveInvoice()
+              getReceiveAddress()
                 .then((response) => {
                   console.log('response', response)
                   clipboard.writeText(String(response.data?.address))
@@ -124,7 +124,7 @@ function Main() {
             type="button"
             onClick={async () => {
               setIsLoading(true)
-              getOffers({})
+              getOffers()
                 .then((response) => {
                   console.log('response', response)
                   setResponse(response)
