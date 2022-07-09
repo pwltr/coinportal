@@ -1,4 +1,5 @@
 import { invoke } from '@tauri-apps/api'
+import type { InvokeArgs } from '@tauri-apps/api/tauri'
 
 type Response<Body> = {
   status: 'success' | 'error'
@@ -6,24 +7,29 @@ type Response<Body> = {
   message?: string
 }
 
-export const generateWallet = async ({
-  name,
-  extension,
-}: {
-  name?: string
-  extension: string
-}): Promise<Response<GenerateWalletResult>> => {
+function call<T>(cmd: string, args: InvokeArgs): Promise<Response<T>> {
   return new Promise((resolve, reject) => {
-    invoke<Response<GenerateWalletResult>>('generate_wallet', {
-      name,
-      extension,
-    }).then((response) => {
-      if (response.status === 'success') {
-        resolve(response)
-      } else {
-        reject(response)
-      }
-    })
+    invoke<Response<T>>(cmd, args)
+      .then((response) => {
+        if (response.status === 'success') {
+          resolve(response)
+        } else {
+          reject(response)
+        }
+      })
+      .catch((error) =>
+        reject({
+          status: 'error',
+          message: error,
+        }),
+      )
+  })
+}
+
+export const generateWallet = async ({ name, extension }: { name?: string; extension: string }) => {
+  return call<GenerateWalletResult>('generate_wallet', {
+    name,
+    extension,
   })
 }
 
@@ -35,52 +41,22 @@ export const recoverWallet = async ({
   name?: string
   seedPhrase: string
   extension: string
-}): Promise<Response<RecoverWalletResult>> => {
-  return new Promise((resolve, reject) => {
-    invoke<Response<RecoverWalletResult>>('recover_wallet', {
-      name,
-      seedPhrase,
-      extension,
-    }).then((response) => {
-      if (response.status === 'success') {
-        resolve(response)
-      } else {
-        reject(response)
-      }
-    })
+}) => {
+  return call<RecoverWalletResult>('recover_wallet', {
+    name,
+    seedPhrase,
+    extension,
   })
 }
 
 export const getWalletBalance = async (
   name?: string,
 ): Promise<Response<GetWalletBalanceResult>> => {
-  return new Promise((resolve, reject) => {
-    invoke<Response<GetWalletBalanceResult>>('get_wallet_balance', {
-      name,
-    }).then((response) => {
-      if (response.status === 'success') {
-        resolve(response)
-      } else {
-        reject(response)
-      }
-    })
-  })
+  return call<GetWalletBalanceResult>('get_wallet_balance', { name })
 }
 
-export const getReceiveInvoice = async (
-  name?: string,
-): Promise<Response<GetReceiveInvoiceResult>> => {
-  return new Promise((resolve, reject) => {
-    invoke<Response<GetReceiveInvoiceResult>>('get_receive_invoice', {
-      name,
-    }).then((response) => {
-      if (response.status === 'success') {
-        resolve(response)
-      } else {
-        reject(response)
-      }
-    })
-  })
+export const getReceiveInvoice = async (name?: string) => {
+  return call<GetReceiveInvoiceResult>('get_receive_invoice', { name })
 }
 
 export const getFidelityBondAddress = async ({
@@ -88,36 +64,64 @@ export const getFidelityBondAddress = async ({
   locktime,
 }: {
   name?: string
-  locktime: string
-}): Promise<Response<GetFidelityBondAddressResult>> => {
-  return new Promise((resolve, reject) => {
-    invoke<Response<GetFidelityBondAddressResult>>('get_fidelity_bond_address', {
-      name,
-      locktime,
-    }).then((response) => {
-      if (response.status === 'success') {
-        resolve(response)
-      } else {
-        reject(response)
-      }
-    })
+  locktime: {
+    month: number
+    year: number
+  }
+}) => {
+  return call<GetFidelityBondAddressResult>('get_fidelity_bond_address', {
+    name,
+    locktime,
   })
+}
+
+export const getOffers = async ({
+  network,
+  makerAddress,
+}: {
+  network?: string
+  makerAddress?: number
+}) => {
+  return call<DownloadOffersResult>('get_offers', { network, makerAddress })
 }
 
 export const runTaker = async ({
   name,
   sendAmount,
+  feeRate,
+  makerCount,
+  txCount,
 }: {
   name?: string
   sendAmount: number
-}): Promise<Response<null>> => {
-  return new Promise((resolve, reject) => {
-    invoke<Response<null>>('run_taker', { name, sendAmount }).then((response) => {
-      if (response.status === 'success') {
-        resolve(response)
-      } else {
-        reject(response)
-      }
-    })
+  feeRate?: number
+  makerCount?: number
+  txCount?: number
+}) => {
+  return call<null>('run_taker', { name, sendAmount, feeRate, makerCount, txCount })
+}
+
+export const directSend = async ({
+  name,
+  sendAmount,
+  destination,
+  coinsToSpend,
+  feeRate,
+  dontBroadcast,
+}: {
+  name?: string
+  sendAmount: number
+  destination: string
+  coinsToSpend: string
+  feeRate?: string
+  dontBroadcast?: boolean
+}) => {
+  return call<DirectSendResult>('direct_send', {
+    name,
+    feeRate,
+    sendAmount,
+    destination,
+    coinsToSpend,
+    dontBroadcast,
   })
 }

@@ -17,6 +17,7 @@ fn main() {
         commands::get_wallet_addresses,
         commands::get_receive_invoice,
         commands::get_fidelity_bond_address,
+        commands::get_offers,
         commands::run_taker,
         commands::recover_from_incomplete_coinswap,
         commands::direct_send,

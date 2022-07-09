@@ -58,7 +58,10 @@ type RecoverFromIncompleteCoinswapResult = {
 }
 
 type DownloadOffersResult = {
-  // TODO:
+  maker_addresses: Array<MakerAddress>
+  addresses_offers_map: {
+    address: string
+  }
 }
 
 type DirectSendResult = {

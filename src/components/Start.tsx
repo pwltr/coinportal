@@ -22,29 +22,28 @@ function Start() {
 
       <div className="App-body">
         <div className="container mx-auto flex flex-col">
-          <div className="flex my-4 justify-center">
-            <div className="">
-              <button
-                className="btn"
-                type="button"
-                onClick={() => {
-                  setIsLoading(true)
-                  generateWallet({ extension })
-                    .then((response) => {
-                      console.log('response', response)
-                      setIsLoading(false)
-                      navigate('/')
-                    })
-                    .catch((error) => {
-                      console.error('error', error)
-                      toast.error(error.message)
-                      setIsLoading(false)
-                    })
-                }}
-              >
-                {t('start.generateWallet')}
-              </button>
-            </div>
+          <div className="flex justify-center">
+            <button
+              className="btn"
+              type="button"
+              onClick={() => {
+                setIsLoading(true)
+                generateWallet({ extension })
+                  .then((response) => {
+                    console.log('response', response)
+                    toast.success('Wallet generated.')
+                    setIsLoading(false)
+                    navigate('/')
+                  })
+                  .catch((error) => {
+                    console.error('error', error)
+                    toast.error(error.message)
+                    setIsLoading(false)
+                  })
+              }}
+            >
+              {t('start.generateWallet')}
+            </button>
           </div>
 
           <div className="divider">OR</div>
@@ -81,6 +80,7 @@ function Start() {
                   })
                     .then((response) => {
                       console.log('response', response)
+                      toast.success('Wallet recovered.')
                       setIsLoading(false)
                       navigate('/')
                     })

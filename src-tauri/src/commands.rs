@@ -146,11 +146,9 @@ pub async fn get_receive_invoice(name: Option<String>) -> Response<json::GetRece
 #[tauri::command]
 pub async fn get_fidelity_bond_address(
     name: Option<String>,
-    locktime: String,
+    locktime: YearAndMonth,
 ) -> Response<json::GetFidelityBondAddressResult> {
     let wallet_path = create_wallet_path(name);
-    // TODO:
-    let locktime = YearAndMonth::new(2030, 1);
 
     match teleport::get_fidelity_bond_address(&wallet_path, &locktime) {
         Ok(result) => Response {
@@ -164,6 +162,29 @@ pub async fn get_fidelity_bond_address(
             message: Some(error.to_string()),
         },
     }
+}
+
+#[tauri::command]
+pub async fn get_offers(
+    network_str: Option<String>,
+    maker_address: Option<String>,
+) -> Response<json::DownloadOffersResult> {
+    thread::spawn(
+        move || match teleport::download_offers(network_str, maker_address) {
+            Ok(result) => Response {
+                status: ResponseType::Success,
+                data: Some(result),
+                message: None,
+            },
+            Err(error) => Response {
+                status: ResponseType::Error,
+                data: None,
+                message: Some(error.to_string()),
+            },
+        },
+    )
+    .join()
+    .expect("Thread panicked")
 }
 
 #[tauri::command]
