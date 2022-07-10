@@ -1,9 +1,11 @@
+use bitcoin::hashes::hash160::Hash as Hash160;
 use serde::Serialize;
 use std::fs;
 use std::path::PathBuf;
 use std::str::FromStr;
 use std::thread;
 use tauri::api::path::data_dir;
+use teleport::direct_send::{CoinToSpend, Destination, SendAmount};
 use teleport::fidelity_bonds::YearAndMonth;
 use teleport::json;
 use teleport::wallet_sync::{DisplayAddressType, WalletSyncAddressAmount};
@@ -110,11 +112,9 @@ pub async fn get_wallet_addresses(
     let wallet_path = create_wallet_path(name);
 
     match teleport::get_wallet_addresses(&wallet_path, DisplayAddressType::All, network) {
-        Ok(()) => Response {
+        Ok(result) => Response {
             status: ResponseType::Success,
-            // TODO: do we have something to return here?
-            // data: Some(result),
-            data: None,
+            data: Some(result),
             message: None,
         },
         Err(error) => Response {
@@ -224,17 +224,58 @@ pub async fn run_taker(
 }
 
 #[tauri::command]
-pub async fn recover_from_incomplete_coinswap(name: Option<String>) {
+pub async fn recover_from_incomplete_coinswap(
+    name: Option<String>,
+    hashvalue: Hash160,
+    dont_broadcast: Option<bool>,
+) -> Response<json::RecoverFromIncompleteCoinswapResult> {
     let wallet_path = create_wallet_path(name);
+    let dont_broadcast = dont_broadcast.unwrap_or(false);
 
-    // teleport::recover_from_incomplete_coinswap()
-    unimplemented!()
+    match teleport::recover_from_incomplete_coinswap(&wallet_path, hashvalue, dont_broadcast) {
+        Ok(result) => Response {
+            status: ResponseType::Success,
+            data: Some(result),
+            message: None,
+        },
+        Err(error) => Response {
+            status: ResponseType::Error,
+            data: None,
+            message: Some(error.to_string()),
+        },
+    }
 }
 
 #[tauri::command]
-pub async fn direct_send(name: Option<String>) {
+pub async fn direct_send(
+    name: Option<String>,
+    fee_rate: Option<u64>,
+    send_amount: SendAmount,
+    destination: Destination,
+    coins_to_spend: Vec<CoinToSpend>,
+    dont_broadcast: Option<bool>,
+) -> Response<json::DirectSendResult> {
     let wallet_path = create_wallet_path(name);
+    let fee_rate = fee_rate.unwrap_or(1000);
+    let dont_broadcast = dont_broadcast.unwrap_or(false);
 
-    // teleport::direct_send()
-    unimplemented!()
+    match teleport::direct_send(
+        &wallet_path,
+        fee_rate,
+        send_amount,
+        destination,
+        &coins_to_spend,
+        dont_broadcast,
+    ) {
+        Ok(result) => Response {
+            status: ResponseType::Success,
+            data: Some(result),
+            message: None,
+        },
+        Err(error) => Response {
+            status: ResponseType::Error,
+            data: None,
+            message: Some(error.to_string()),
+        },
+    }
 }

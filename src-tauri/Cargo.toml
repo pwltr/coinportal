@@ -20,6 +20,7 @@ serde = { version = "1.0", features = ["derive"] }
 tauri = { version = "1.0.3", features = ["clipboard-write-text", "fs-all", "path-all"] }
 teleport = { path = "../teleport-transactions" }
 tokio = { version = "1", features = ["full"] }
+bitcoin = "0.26"
 
 [features]
 # by default Tauri runs in production mode
